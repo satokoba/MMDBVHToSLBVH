@@ -18,6 +18,9 @@ namespace WpfApplication1
         private FramesElement m_frames;
         private FrameTimeElement m_frame_time;
 
+        private const int FRAMES_PER_FILE = 900;
+        private int frames_per_file = FRAMES_PER_FILE;
+
         public void Load(Stream stream)
         {
             using (StreamReader reader = new StreamReader(stream))
@@ -82,11 +85,9 @@ namespace WpfApplication1
             }
         }
 
-        private const int FRAMES_PER_FILE = 901;
-
         public void Save(string fileName)
         {
-            if (m_frames.Value < FRAMES_PER_FILE)
+            if (m_frames.Value < frames_per_file)
             {
                 using (FileStream stream = new FileStream(fileName, FileMode.Create))
                 {
@@ -105,7 +106,7 @@ namespace WpfApplication1
                 m_root.Write(writer, 0);
                 writer.WriteLine("MOTION");
                 writer.WriteLine("Frames: {0}", m_frames.Value);
-                writer.WriteLine("Frame Time: {0}", m_frame_time.Value);
+                writer.WriteLine("Frame Time: {0:f6}", m_frame_time.Value);
                 foreach (FrameElement frame in m_frame_list)
                 {
                     frame.Write(writer);
@@ -120,45 +121,55 @@ namespace WpfApplication1
 
             while (startFrame < m_frames.Value)
             {
-                SavePartial(string.Format("{0}\\{1}{2}{3}", 
+                int num = SavePartial(string.Format("{0}\\{1}{2}{3}", 
                                           Path.GetDirectoryName(fileName), 
                                           Path.GetFileNameWithoutExtension(fileName),
                                           index,
                                           Path.GetExtension(fileName)),
                             startFrame);
 
-                startFrame += FRAMES_PER_FILE;
+                startFrame += num;
                 index += 1;
             }
         }
 
-        private void SavePartial(string fileName, int startFrame)
+        private int SavePartial(string fileName, int startFrame)
         {
+            int num_of_written_line;
+
             using (FileStream stream = new FileStream(fileName, FileMode.Create))
             {
-                SavePartial(stream, startFrame);
+                num_of_written_line = SavePartial(stream, startFrame);
             }
+
+            return num_of_written_line;
         }
 
-        private void SavePartial(Stream stream, int startFrame)
+        private int SavePartial(Stream stream, int startFrame)
         {
-            int endFrame = startFrame + FRAMES_PER_FILE - 1;
-            if (endFrame >= m_frames.Value)
-                endFrame = m_frames.Value - 1;
+            int num_of_line = frames_per_file - 1;
+
+            if ((startFrame + num_of_line) >= m_frames.Value)
+            {
+                num_of_line = m_frames.Value - startFrame;
+            }
 
             using (StreamWriter writer = new StreamWriter(stream))
             {
                 writer.WriteLine("HIERARCHY");
                 m_root.Write(writer, 0);
                 writer.WriteLine("MOTION");
-                writer.WriteLine("Frames: {0}", endFrame - startFrame - 1 + 1);
-                writer.WriteLine("Frame Time: {0}", m_frame_time.Value);
+                writer.WriteLine("Frames: {0}", num_of_line + 1);
+                writer.WriteLine("Frame Time: {0:f6}", m_frame_time.Value);
                 m_frame_list[0].Write(writer);
-                for(int i = startFrame; i<= endFrame; i++)
+                for (int i = 0; i < num_of_line; i++)
                 {
-                    m_frame_list[i].Write(writer);
+                    //writer.WriteLine("{0}:", i + startFrame);  // for DEBUG
+                    m_frame_list[i + startFrame].Write(writer);
                 }
             }
+
+            return num_of_line;
         }
 
         private void Add(Element child)
@@ -239,6 +250,18 @@ namespace WpfApplication1
             get
             {
                 return m_frames;
+            }
+        }
+
+        public int FramesPerFile
+        {
+            set
+            {
+                frames_per_file = value;
+            }
+            get
+            {
+                return frames_per_file;
             }
         }
 
@@ -445,7 +468,7 @@ namespace WpfApplication1
 
         public void Write(TextWriter writer, int indent)
         {
-            writer.WriteLine("{0}OFFSET {1} {2} {3}", new string(' ', indent * 2), m_value.X, m_value.Y, m_value.Z);
+            writer.WriteLine("{0}OFFSET {1:f6} {2:f6} {3:f6}", new string(' ', indent * 2), m_value.X, m_value.Y, m_value.Z);
         }
 
         public override string ToString()
@@ -559,7 +582,7 @@ namespace WpfApplication1
                 JointFrame a = m_map[joint.Name];
                 foreach (string channel in joint.Channels.ChannelList)
                 {
-                    writer.Write("{0} ", a.GetValue(channel));
+                    writer.Write("{0:f6} ", a.GetValue(channel));
                 }
             }
             writer.WriteLine();

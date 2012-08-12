@@ -1,5 +1,10 @@
 bin
 obj
+publish
+Backup
 *.csproj.user
 *.suo
+*.zip
 *~
+_UpgradeReport_Files
+UpgradeLog.XML

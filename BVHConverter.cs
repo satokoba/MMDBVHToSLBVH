@@ -81,6 +81,13 @@ namespace WpfApplication1
                     matrix.Append(lowerMatrix);
                     jfDest.Matrix = matrix;
                     break;
+                case "chest":
+                    matrix = jfDest.Matrix;
+                    //JointFrame jfUpper = srcFrame.GetJointFrame("upper_body");
+                    //Matrix3D upperMatrix = jfUpper.Matrix;
+                    //matrix.Append(upperMatrix);
+                    jfDest.Matrix = matrix;
+                    break;
                 case "lShldr":
                     matrix = jfDest.Matrix;
                     matrix.RotatePrepend(new Quaternion(new Vector3D(0, 0, 1), -35));
@@ -117,6 +124,8 @@ namespace WpfApplication1
                     return "lower_body";
                 case "abdomen":
                     return "upper_body";
+                case "chest":
+                    return "upper_body2";
                 case "lCollar":
                     return "shoulder.L";
                 case "lShldr":

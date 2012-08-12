@@ -26,6 +26,11 @@ namespace WpfApplication1
 
             bvhFrom.Offset = new System.Windows.Media.Media3D.Vector3D(0, -10, 0);
             bvhTo.Scale = 0.25;
+
+            menuItemFrame900.IsChecked = true;
+            menuItemFrame600.IsChecked = false;
+            menuItemFrame450.IsChecked = false;
+            menuItemFrame300.IsChecked = false;
         }
 
         private void OpenMenuItem_Click(object sender, RoutedEventArgs e)
@@ -40,6 +45,12 @@ namespace WpfApplication1
                 bvhFrom.BVH = bvh;
                 bvhTo.BVH = bvh.Convert();
                 menuItemUseAll.IsChecked = false;
+
+                menuItemFrame900.IsChecked = true;
+                menuItemFrame600.IsChecked = false;
+                menuItemFrame450.IsChecked = false;
+                menuItemFrame300.IsChecked = false;
+                bvhTo.BVH.FramesPerFile = 900;
             }
         }
 
@@ -69,6 +80,59 @@ namespace WpfApplication1
                 JointFrame jf = bvhTo.BVH.FrameList[0].GetJointFrame(joint.Name);
                 jf.SetValue("Xrotation", 0.0);
             }
+        }
+
+        private void SelectFramesPerFile(object sender, EventArgs e)
+        {
+            if (sender == menuItemFrame900)
+            {
+                menuItemFrame900.IsChecked = true;
+                menuItemFrame600.IsChecked = false;
+                menuItemFrame450.IsChecked = false;
+                menuItemFrame300.IsChecked = false;
+                if (bvhTo.BVH != null)
+                {
+                    bvhTo.BVH.FramesPerFile = 900;
+                }
+            }
+            else if (sender == menuItemFrame600)
+            {
+                menuItemFrame900.IsChecked = false;
+                menuItemFrame600.IsChecked = true;
+                menuItemFrame450.IsChecked = false;
+                menuItemFrame300.IsChecked = false;
+                if (bvhTo.BVH != null)
+                {
+                    bvhTo.BVH.FramesPerFile = 600;
+                }
+            }
+            else if (sender == menuItemFrame450)
+            {
+                menuItemFrame900.IsChecked = false;
+                menuItemFrame600.IsChecked = false;
+                menuItemFrame450.IsChecked = true;
+                menuItemFrame300.IsChecked = false;
+                if (bvhTo.BVH != null)
+                {
+                    bvhTo.BVH.FramesPerFile = 450;
+                }
+            }
+            else if (sender == menuItemFrame300)
+            {
+                menuItemFrame900.IsChecked = false;
+                menuItemFrame600.IsChecked = false;
+                menuItemFrame450.IsChecked = false;
+                menuItemFrame300.IsChecked = true;
+                if (bvhTo.BVH != null)
+                {
+                    bvhTo.BVH.FramesPerFile = 300;
+                }
+            }
+        }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }
